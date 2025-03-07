@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import React, { useRef, useEffect } from "react";
 
-interface OptionSelectorProps<T extends string | number> {
+interface OptionSelectorProps<T extends string> {
   title: string;
   options: T[];
   selected: T;
@@ -10,12 +10,12 @@ interface OptionSelectorProps<T extends string | number> {
   formatOption?: (option: T) => string;
 }
 
-export function OptionSelector<T extends string | number>({
+export function OptionSelector<T extends string>({
   title,
   options,
   selected,
   onChange,
-  formatOption = (option) => `${option}`,
+  formatOption = (option) => option,
 }: OptionSelectorProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);
@@ -36,32 +36,56 @@ export function OptionSelector<T extends string | number>({
   }, [selected]);
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <span className="text-sm text-white/60">{title}</span>
-      <div className="flex flex-col items-center gap-2">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '0.5rem'
+    }}>
+      <span style={{
+        fontSize: '0.875rem',
+        color: 'rgba(51, 51, 51, 0.6)'
+      }}>{title}</span>
+      <div
+        ref={containerRef}
+        style={{
+          position: 'relative',
+          display: 'inline-flex',
+          backgroundColor: 'rgba(51, 51, 51, 0.05)',
+          padding: '0.25rem',
+          borderRadius: 'var(--radius)'
+        }}
+      >
         <div
-          ref={containerRef}
-          className="relative inline-flex rounded-lg bg-white/5 p-1"
-        >
-          <div
-            ref={highlightRef}
-            className="absolute top-1 h-[calc(100%-8px)] rounded-md bg-blue-600 transition-all duration-200"
-          />
-          {options.map((option) => (
-            <button
-              key={option}
-              ref={option === selected ? selectedRef : null}
-              onClick={() => onChange(option)}
-              className={`relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                option === selected
-                  ? "text-white"
-                  : "text-white/80 hover:text-white"
-              }`}
-            >
-              {formatOption(option)}
-            </button>
-          ))}
-        </div>
+          ref={highlightRef}
+          style={{
+            position: 'absolute',
+            top: '0.25rem',
+            height: 'calc(100% - 0.5rem)',
+            backgroundColor: 'var(--primary)',
+            transition: 'all 0.2s',
+            borderRadius: 'calc(var(--radius) - 2px)'
+          }}
+        />
+        {options.map((option) => (
+          <button
+            key={option}
+            ref={option === selected ? selectedRef : null}
+            onClick={() => onChange(option)}
+            style={{
+              position: 'relative',
+              padding: '0.375rem 0.75rem',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              color: option === selected ? 'white' : 'rgba(51, 51, 51, 0.8)',
+              transition: 'all 0.2s',
+              borderRadius: 'calc(var(--radius) - 2px)'
+            }}
+            className={option !== selected ? "scale-option" : ""}
+          >
+            {formatOption(option)}
+          </button>
+        ))}
       </div>
     </div>
   );

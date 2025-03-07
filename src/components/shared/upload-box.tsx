@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 interface UploadBoxProps {
@@ -16,38 +17,134 @@ export function UploadBox({
   onChange,
 }: UploadBoxProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 p-4">
-      <div className="flex flex-col items-center gap-2">
-        <p className="text-center text-white">{title}</p>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '0.75rem',
+      padding: '0.5rem'
+    }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.375rem'
+      }}>
+        <h2 style={{
+          textAlign: 'center',
+          fontSize: '0.875rem',
+          fontWeight: 600,
+          color: 'var(--foreground)'
+        }}>{title}</h2>
         {subtitle && (
-          <p className="inline-block rounded-full border border-white/30 bg-white/5 px-2 py-0.5 text-center text-sm text-white/60">
+          <p style={{
+            display: 'inline-block',
+            backgroundColor: 'var(--accent)',
+            padding: '0.125rem 0.625rem',
+            textAlign: 'center',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            color: 'var(--primary)',
+            borderRadius: '9999px'
+          }}>
             {subtitle}
           </p>
         )}
       </div>
-      <div className="flex w-72 flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-white/30 bg-white/10 p-6 backdrop-blur-sm">
-        <svg
-          className="h-8 w-8 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
+      <div style={{
+        display: 'flex',
+        width: '15rem',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.75rem',
+        border: '1px dashed var(--border)',
+        borderRadius: 'var(--radius)',
+        backgroundImage: 'linear-gradient(to bottom, white, var(--secondary))',
+        padding: '1.25rem'
+      }} className="card">
+        <div style={{
+          backgroundColor: 'var(--accent)',
+          padding: '0.75rem',
+          borderRadius: '9999px'
+        }}>
+          <svg
+            style={{
+              height: '2.5rem',
+              width: '2.5rem',
+              color: 'var(--primary)'
+            }}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M12 12v5"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M15 15l-3-3-3 3"
+            />
+          </svg>
+        </div>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.25rem'
+        }}>
+          <p style={{
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            color: 'rgba(51, 51, 51, 0.7)'
+          }}>Drag and Drop</p>
+          <p style={{
+            fontSize: '0.75rem',
+            color: 'rgba(51, 51, 51, 0.4)'
+          }}>or</p>
+        </div>
+        <label className="btn-primary" style={{
+          display: 'inline-flex',
+          cursor: 'pointer',
+          alignItems: 'center',
+          gap: '0.375rem'
+        }}>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            style={{
+              height: '0.75rem',
+              width: '0.75rem'
+            }}
+            strokeWidth="2" 
+            strokeLinecap="round" 
             strokeLinejoin="round"
-            strokeWidth={2}
-            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-          />
-        </svg>
-        <p className="text-sm text-gray-400">Drag and Drop</p>
-        <p className="text-sm text-gray-500">or</p>
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white shadow-md transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
           <span>{description}</span>
           <input
             type="file"
             onChange={onChange}
             accept={accept}
-            className="hidden"
+            style={{ display: 'none' }}
           />
         </label>
       </div>

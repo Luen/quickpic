@@ -1,3 +1,4 @@
+"use client";
 import React, { useCallback, useState, useRef } from "react";
 
 interface FileDropzoneProps {
@@ -80,13 +81,85 @@ export function FileDropzone({
       onDragLeave={handleDragOut}
       onDragOver={handleDrag}
       onDrop={handleDrop}
-      className="h-full w-full"
+      style={{ height: '100%', width: '100%' }}
     >
       {isDragging && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
-          <div className="animate-in fade-in zoom-in relative flex h-[90%] w-[90%] transform items-center justify-center rounded-xl border-2 border-dashed border-white/30 transition-all duration-200 ease-out">
-            <p className="text-2xl font-semibold text-white">{dropText}</p>
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(59, 130, 246, 0.05)',
+            backdropFilter: 'blur(4px)'
+          }} />
+          <div style={{
+            position: 'relative',
+            display: 'flex',
+            height: '80%',
+            width: '80%',
+            transform: 'scale(1)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px dashed rgba(59, 130, 246, 0.3)',
+            borderRadius: 'var(--radius)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            transition: 'all 0.2s ease-out',
+            animation: 'fadeIn 0.2s ease-out'
+          }} className="card">
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.75rem'
+            }}>
+              <div style={{
+                backgroundColor: 'var(--accent)',
+                padding: '1rem',
+                borderRadius: '9999px'
+              }}>
+                <svg
+                  style={{
+                    height: '3rem',
+                    width: '3rem',
+                    color: 'var(--primary)'
+                  }}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M12 12v5"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M15 15l-3-3-3 3"
+                  />
+                </svg>
+              </div>
+              <p style={{
+                fontSize: '1.125rem',
+                fontWeight: 500,
+                color: 'var(--primary)'
+              }}>{dropText}</p>
+            </div>
           </div>
         </div>
       )}

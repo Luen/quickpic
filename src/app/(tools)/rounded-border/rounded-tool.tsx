@@ -1,5 +1,4 @@
 "use client";
-import { usePlausible } from "next-plausible";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { UploadBox } from "@/components/shared/upload-box";
@@ -133,14 +132,12 @@ function SaveAsPngButton({
     imageMetadata,
   });
 
-  const plausible = usePlausible();
 
   return (
     <div>
       <canvas ref={setCanvasRef} {...canvasProps} hidden />
       <button
         onClick={() => {
-          plausible("convert-image-to-png");
           void convertToPng();
         }}
         className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
@@ -184,7 +181,7 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-6 p-6">
-      <div className="flex w-full flex-col items-center gap-4 rounded-xl p-6">
+      <div className="flex w-full flex-col items-center gap-4 rounded p-6">
         <ImageRenderer
           imageContent={imageContent}
           radius={radius}
@@ -195,7 +192,7 @@ function RoundedToolCore(props: { fileUploaderProps: FileUploaderResult }) {
         </p>
       </div>
 
-      <div className="flex flex-col items-center rounded-lg bg-white/5 p-3">
+      <div className="flex flex-col items-center rounded bg-foreground/5 p-3">
         <span className="text-sm text-white/60">Original Size</span>
         <span className="font-medium text-white">
           {imageMetadata.width} × {imageMetadata.height}

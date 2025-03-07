@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef, useEffect } from "react";
 
 interface SVGScaleSelectorProps {
@@ -36,16 +37,44 @@ export function SVGScaleSelector({
   }, [selected]);
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <span className="text-sm text-white/60">{title}</span>
-      <div className="flex flex-col items-center gap-2">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '0.5rem'
+    }}>
+      <span style={{
+        fontSize: '0.75rem',
+        fontWeight: 500,
+        color: 'rgba(51, 51, 51, 0.7)'
+      }}>{title}</span>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.5rem'
+      }}>
         <div
           ref={containerRef}
-          className="relative inline-flex rounded-lg bg-white/5 p-1"
+          style={{
+            position: 'relative',
+            display: 'inline-flex',
+            backgroundColor: 'var(--secondary)',
+            padding: '0.125rem',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            borderRadius: 'var(--radius)'
+          }}
         >
           <div
             ref={highlightRef}
-            className="absolute top-1 h-[calc(100%-8px)] rounded-md bg-blue-600 transition-all duration-200"
+            style={{
+              position: 'absolute',
+              top: '0.125rem',
+              height: 'calc(100% - 0.25rem)',
+              backgroundColor: 'var(--primary)',
+              transition: 'all 0.2s',
+              borderRadius: 'calc(var(--radius) - 2px)'
+            }}
           />
           {[...options, "custom" as const].map((option) => (
             <button
@@ -54,49 +83,73 @@ export function SVGScaleSelector({
               onClick={() =>
                 onChange(typeof option === "number" ? option : "custom")
               }
-              className={`relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                option === selected
-                  ? "text-white"
-                  : "text-white/80 hover:text-white"
-              }`}
+              style={{
+                position: 'relative',
+                padding: '0.625rem 0.625rem',
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                color: option === selected ? 'white' : 'rgba(51, 51, 51, 0.7)',
+                transition: 'all 0.2s',
+                borderRadius: 'calc(var(--radius) - 2px)'
+              }}
+              className={option !== selected ? "scale-option" : ""}
             >
               {option === "custom" ? "Custom" : `${option}×`}
             </button>
           ))}
         </div>
         {selected === "custom" && (
-          <input
-            type="number"
-            min="0"
-            max="64"
-            step="1"
-            value={customValue}
-            onChange={(e) => {
-              const value = Math.min(64, parseFloat(e.target.value));
-              onCustomValueChange?.(value);
-            }}
-            onKeyDown={(e) => {
-              if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <input
+              type="number"
+              min="0"
+              max="64"
+              step="1"
+              value={customValue}
+              onChange={(e) => {
+                const value = Math.min(64, parseFloat(e.target.value));
+                onCustomValueChange?.(value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
 
-              e.preventDefault();
-              const currentValue = customValue ?? 0;
-              let step = 1;
+                e.preventDefault();
+                const currentValue = customValue ?? 0;
+                let step = 1;
 
-              if (e.shiftKey) step = 10;
-              if (e.altKey) step = 0.1;
+                if (e.shiftKey) step = 10;
+                if (e.altKey) step = 0.1;
 
-              const newValue =
-                e.key === "ArrowUp" ? currentValue + step : currentValue - step;
+                const newValue =
+                  e.key === "ArrowUp" ? currentValue + step : currentValue - step;
 
-              const clampedValue = Math.min(
-                64,
-                Math.max(0, Number(newValue.toFixed(1))),
-              );
-              onCustomValueChange?.(clampedValue);
-            }}
-            className="w-24 rounded-lg bg-white/5 px-3 py-1.5 text-sm text-white"
-            placeholder="Enter scale"
-          />
+                const clampedValue = Math.min(
+                  64,
+                  Math.max(0, Number(newValue.toFixed(1))),
+                );
+                onCustomValueChange?.(clampedValue);
+              }}
+              style={{
+                width: '5rem',
+                border: '1px solid var(--border)',
+                backgroundColor: 'white',
+                padding: '0.5rem 0.5rem',
+                fontSize: '0.75rem',
+                color: 'var(--foreground)',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                borderRadius: 'var(--radius)'
+              }}
+              placeholder="Enter scale"
+            />
+            <span style={{
+              fontSize: '0.75rem',
+              color: 'rgba(51, 51, 51, 0.7)'
+            }}>×</span>
+          </div>
         )}
       </div>
     </div>

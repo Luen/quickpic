@@ -1,81 +1,83 @@
 "use client";
-
-import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useState, useEffect } from "react";
 import { UploadBox } from "@/components/shared/upload-box";
-import { OptionSelector } from "@/components/shared/option-selector";
 import { FileDropzone } from "@/components/shared/file-dropzone";
 import {
   type FileUploaderResult,
   useFileUploader,
 } from "@/hooks/use-file-uploader";
-import { useEffect, useState } from "react";
 
-type BackgroundOption = "white" | "black" | "transparent";
-
-function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
+function RemoveBackgroundToolCore(props: { fileUploaderProps: FileUploaderResult }) {
   const { imageContent, imageMetadata, handleFileUploadEvent, cancel } =
     props.fileUploaderProps;
 
-  const [backgroundColor, setBackgroundColor] = useLocalStorage<BackgroundOption>(
-    "squareTool_backgroundColor", 
-    "white"
-  );
-
-  const [squareImageContent, setSquareImageContent] = useState<string | null>(
-    null,
-  );
+  const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (imageContent && imageMetadata) {
-      const canvas = document.createElement("canvas");
-      const size = Math.max(imageMetadata.width, imageMetadata.height);
-      canvas.width = size;
-      canvas.height = size;
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      // Clear canvas first (important for transparency)
-      ctx.clearRect(0, 0, size, size);
-
-      // Fill background if not transparent
-      if (backgroundColor !== "transparent") {
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, 0, size, size);
-      }
-
-      // Load and center the image
       const img = new Image();
       img.onload = () => {
-        const x = (size - imageMetadata.width) / 2;
-        const y = (size - imageMetadata.height) / 2;
-        ctx.drawImage(img, x, y);
-        setSquareImageContent(canvas.toDataURL("image/png"));
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        
+        if (ctx) {
+          // Draw the original image
+          ctx.drawImage(img, 0, 0);
+          
+          // Get image data for processing
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          
+          // Simple background removal algorithm
+          // This is a basic implementation that makes white/near-white pixels transparent
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i] || 0;
+            const g = data[i + 1] || 0;
+            const b = data[i + 2] || 0;
+            
+            // Check if the pixel is white or near-white
+            if (r > 240 && g > 240 && b > 240) {
+              data[i + 3] = 0; // Set alpha to 0 (transparent)
+            }
+          }
+          
+          // Put the processed image data back on the canvas
+          ctx.putImageData(imageData, 0, 0);
+          
+          // Convert canvas to data URL
+          const dataUrl = canvas.toDataURL("image/png");
+          setProcessedImageUrl(dataUrl);
+        }
       };
       img.src = imageContent;
+    } else {
+      setProcessedImageUrl(null);
     }
-  }, [imageContent, imageMetadata, backgroundColor]);
+  }, [imageContent, imageMetadata]);
 
   const handleSaveImage = () => {
-    if (squareImageContent && imageMetadata) {
+    if (processedImageUrl && imageMetadata) {
       const link = document.createElement("a");
-      link.href = squareImageContent;
+      link.href = processedImageUrl;
       const originalFileName = imageMetadata.name;
       const fileNameWithoutExtension =
         originalFileName.substring(0, originalFileName.lastIndexOf(".")) ||
         originalFileName;
-      link.download = `${fileNameWithoutExtension}-squared.png`;
+      link.download = `${fileNameWithoutExtension}-bg-removed.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
     }
   };
 
   if (!imageMetadata) {
     return (
       <UploadBox
-        title="Create square images with custom backgrounds. Fast and free."
-        subtitle="Allows pasting images from clipboard"
+        title="Remove image backgrounds easily. Fast and free."
+        subtitle="Works best with images that have a solid background"
         description="Upload Image"
         accept="image/*"
         onChange={handleFileUploadEvent}
@@ -94,6 +96,7 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
       gap: '1.5rem',
       padding: '1.5rem'
     }}>
+      {/* Preview Section */}
       <div style={{
         display: 'flex',
         width: '100%',
@@ -103,19 +106,19 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
         padding: '1.5rem',
         borderRadius: 'var(--radius)'
       }}>
-        {squareImageContent && (
+        {processedImageUrl && (
           <div style={{
-            backgroundColor: backgroundColor === "transparent" ? "rgba(200, 200, 200, 0.2)" : "transparent",
-            backgroundImage: backgroundColor === "transparent" ? "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)" : "none",
-            backgroundSize: "20px 20px",
-            backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
+            backgroundColor: 'rgba(200, 200, 200, 0.2)',
+            backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+            backgroundSize: '20px 20px',
+            backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
             padding: '0.5rem',
             borderRadius: 'var(--radius)',
             overflow: 'hidden'
           }}>
             <img 
-              src={squareImageContent} 
-              alt="Preview" 
+              src={processedImageUrl} 
+              alt="Preview with background removed" 
               style={{
                 display: 'block',
                 maxWidth: '100%',
@@ -134,6 +137,7 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
         </p>
       </div>
 
+      {/* Size Information */}
       <div style={{
         display: 'flex',
         gap: '1.5rem',
@@ -151,7 +155,7 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
             fontSize: '0.75rem',
             color: 'var(--foreground)',
             opacity: 0.6
-          }}>Original</span>
+          }}>Image Size</span>
           <span style={{
             fontWeight: 500,
             color: 'var(--foreground)'
@@ -159,40 +163,9 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
             {imageMetadata.width} × {imageMetadata.height}
           </span>
         </div>
-
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: '0.75rem',
-          borderRadius: 'var(--radius)',
-          backgroundColor: 'var(--secondary)'
-        }}>
-          <span style={{
-            fontSize: '0.75rem',
-            color: 'var(--foreground)',
-            opacity: 0.6
-          }}>Square Size</span>
-          <span style={{
-            fontWeight: 500,
-            color: 'var(--foreground)'
-          }}>
-            {Math.max(imageMetadata.width, imageMetadata.height)} ×{" "}
-            {Math.max(imageMetadata.width, imageMetadata.height)}
-          </span>
-        </div>
       </div>
 
-      <OptionSelector
-        title="Background Color"
-        options={["white", "black", "transparent"]}
-        selected={backgroundColor}
-        onChange={setBackgroundColor}
-        formatOption={(option) =>
-          option.charAt(0).toUpperCase() + option.slice(1)
-        }
-      />
-
+      {/* Action Buttons */}
       <div style={{
         display: 'flex',
         gap: '0.75rem'
@@ -209,9 +182,7 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
           Cancel
         </button>
         <button
-          onClick={() => {
-            handleSaveImage();
-          }}
+          onClick={handleSaveImage}
           className="btn-success"
           style={{
             display: 'inline-flex',
@@ -226,16 +197,16 @@ function SquareToolCore(props: { fileUploaderProps: FileUploaderResult }) {
   );
 }
 
-export function SquareTool() {
+export function RemoveBackgroundTool() {
   const fileUploaderProps = useFileUploader();
 
   return (
     <FileDropzone
       setCurrentFile={fileUploaderProps.handleFileUpload}
-      acceptedFileTypes={["image/*", ".jpg", ".jpeg", ".png", ".webp", ".svg"]}
+      acceptedFileTypes={["image/*", ".jpg", ".jpeg", ".png", ".webp"]}
       dropText="Drop image file"
     >
-      <SquareToolCore fileUploaderProps={fileUploaderProps} />
+      <RemoveBackgroundToolCore fileUploaderProps={fileUploaderProps} />
     </FileDropzone>
   );
-}
+} 

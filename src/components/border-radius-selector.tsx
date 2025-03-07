@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef, useEffect } from "react";
 
 interface BorderRadiusSelectorProps {
@@ -35,42 +36,43 @@ export function BorderRadiusSelector({
     }
   }, [selected]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.min(999, Math.max(0, parseInt(e.target.value) || 0));
-    onCustomValueChange?.(value);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
-
-    e.preventDefault();
-    const currentValue = customValue ?? 0;
-    let step = 1;
-
-    if (e.shiftKey) step = 10;
-    if (e.altKey) step = 0.1;
-
-    const newValue =
-      e.key === "ArrowUp" ? currentValue + step : currentValue - step;
-
-    const clampedValue = Math.min(
-      999,
-      Math.max(0, Number(newValue.toFixed(1))),
-    );
-    onCustomValueChange?.(clampedValue);
-  };
-
   return (
-    <div className="flex flex-col items-center gap-2">
-      <span className="text-sm text-white/60">{title}</span>
-      <div className="flex flex-col items-center gap-2">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '0.5rem'
+    }}>
+      <span style={{
+        fontSize: '0.875rem',
+        color: 'rgba(51, 51, 51, 0.6)'
+      }}>{title}</span>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.5rem'
+      }}>
         <div
           ref={containerRef}
-          className="relative inline-flex rounded-lg bg-white/5 p-1"
+          style={{
+            position: 'relative',
+            display: 'inline-flex',
+            backgroundColor: 'rgba(51, 51, 51, 0.05)',
+            padding: '0.25rem',
+            borderRadius: 'var(--radius)'
+          }}
         >
           <div
             ref={highlightRef}
-            className="absolute inset-y-1 rounded-md bg-blue-600 transition-all duration-200"
+            style={{
+              position: 'absolute',
+              top: '0.25rem',
+              bottom: '0.25rem',
+              backgroundColor: 'var(--primary)',
+              transition: 'all 0.2s',
+              borderRadius: 'calc(var(--radius) - 2px)'
+            }}
           />
           {[...options, "custom" as const].map((option) => (
             <button
@@ -79,32 +81,62 @@ export function BorderRadiusSelector({
               onClick={() =>
                 onChange(typeof option === "number" ? option : "custom")
               }
-              className={`relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                option === selected
-                  ? "text-white"
-                  : "text-white/80 hover:text-white"
-              }`}
+              style={{
+                position: 'relative',
+                padding: '0.375rem 0.75rem',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: option === selected ? 'white' : 'rgba(51, 51, 51, 0.8)',
+                transition: 'all 0.2s',
+                borderRadius: 'calc(var(--radius) - 2px)'
+              }}
+              className={option !== selected ? "scale-option" : ""}
             >
-              {option === "custom" ? "Custom" : option}
+              {option === "custom" ? "Custom" : `${option}px`}
             </button>
           ))}
         </div>
         {selected === "custom" && (
-          <div className="flex items-center gap-2">
-            <div className="relative flex items-center">
-              <input
-                type="number"
-                min="0"
-                max="999"
-                value={customValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                className="w-24 rounded-lg bg-white/5 px-3 py-1.5 text-sm text-white"
-                placeholder="Enter radius"
-              />
-              <span className="absolute right-3 text-sm text-white/60">px</span>
-            </div>
-          </div>
+          <input
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            value={customValue}
+            onChange={(e) => {
+              const value = Math.min(100, parseFloat(e.target.value));
+              onCustomValueChange?.(value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+
+              e.preventDefault();
+              const currentValue = customValue ?? 0;
+              let step = 1;
+
+              if (e.shiftKey) step = 10;
+              if (e.altKey) step = 0.1;
+
+              const newValue =
+                e.key === "ArrowUp" ? currentValue + step : currentValue - step;
+
+              const clampedValue = Math.min(
+                100,
+                Math.max(0, Number(newValue.toFixed(1))),
+              );
+              onCustomValueChange?.(clampedValue);
+            }}
+            style={{
+              width: '6rem',
+              border: '1px solid var(--border)',
+              backgroundColor: 'white',
+              padding: '0.375rem 0.75rem',
+              fontSize: '0.875rem',
+              color: 'var(--foreground)',
+              borderRadius: 'var(--radius)'
+            }}
+            placeholder="Enter radius"
+          />
         )}
       </div>
     </div>

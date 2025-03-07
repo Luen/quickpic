@@ -1,5 +1,4 @@
 "use client";
-import { usePlausible } from "next-plausible";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
@@ -93,7 +92,7 @@ function SVGRenderer({ svgContent }: SVGRendererProps) {
     }
   }, [svgContent]);
 
-  return <div ref={containerRef} />;
+  return <div ref={containerRef} className="max-w-xs" />;
 }
 
 function SaveAsPngButton({
@@ -113,18 +112,38 @@ function SaveAsPngButton({
     imageMetadata,
   });
 
-  const plausible = usePlausible();
 
   return (
     <div>
       <canvas ref={setCanvasRef} {...canvasProps} hidden />
       <button
         onClick={() => {
-          plausible("convert-svg-to-png");
           void convertToPng();
         }}
-        className="rounded-lg bg-green-700 px-4 py-2 text-sm font-semibold text-white shadow-md transition-colors duration-200 hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75"
+        className="btn-success"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.375rem'
+        }}
       >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          style={{
+            height: '0.75rem',
+            width: '0.75rem'
+          }}
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
         Save as PNG
       </button>
     </div>
@@ -153,7 +172,8 @@ function SVGToolCore(props: { fileUploaderProps: FileUploaderResult }) {
   if (!imageMetadata)
     return (
       <UploadBox
-        title="Make SVGs into PNGs. Also makes them bigger. (100% free btw.)"
+        title="Make SVGs into PNGs. Also makes them bigger."
+        subtitle="(100% free btw.)"
         description="Upload SVG"
         accept=".svg"
         onChange={handleFileUploadEvent}
@@ -161,27 +181,96 @@ function SVGToolCore(props: { fileUploaderProps: FileUploaderResult }) {
     );
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col items-center justify-center gap-6 p-6">
+    <div style={{
+      margin: '0 auto',
+      display: 'flex',
+      maxWidth: '28rem',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '1.25rem',
+      padding: '1rem'
+    }}>
       {/* Preview Section */}
-      <div className="flex w-full flex-col items-center gap-4 rounded-xl p-6">
-        <SVGRenderer svgContent={rawContent} />
-        <p className="text-lg font-medium text-white/80">
+      <div style={{
+        display: 'flex',
+        width: '100%',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.75rem',
+        backgroundImage: 'linear-gradient(to bottom, white, var(--secondary))',
+        padding: '1.25rem',
+        borderRadius: 'var(--radius)',
+        border: '1px solid var(--border)',
+        backgroundColor: 'white',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+      }}>
+        <div style={{
+          overflow: 'hidden',
+          backgroundColor: 'white',
+          padding: '0.5rem',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+          borderRadius: 'var(--radius)'
+        }}>
+          <SVGRenderer svgContent={rawContent} />
+        </div>
+        <p style={{
+          fontSize: '0.875rem',
+          fontWeight: 500,
+          color: 'rgba(51, 51, 51, 0.8)'
+        }}>
           {imageMetadata.name}
         </p>
       </div>
 
       {/* Size Information */}
-      <div className="flex gap-6 text-base">
-        <div className="flex flex-col items-center rounded-lg bg-white/5 p-3">
-          <span className="text-sm text-white/60">Original</span>
-          <span className="font-medium text-white">
+      <div style={{
+        display: 'flex',
+        gap: '1rem',
+        fontSize: '0.75rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '0.5rem',
+          borderRadius: 'var(--radius)',
+          border: '1px solid var(--border)',
+          backgroundColor: 'white',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+        }}>
+          <span style={{
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            color: 'var(--primary)'
+          }}>Original</span>
+          <span style={{
+            fontWeight: 500,
+            color: 'var(--foreground)'
+          }}>
             {imageMetadata.width} × {imageMetadata.height}
           </span>
         </div>
 
-        <div className="flex flex-col items-center rounded-lg bg-white/5 p-3">
-          <span className="text-sm text-white/60">Scaled</span>
-          <span className="font-medium text-white">
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '0.5rem',
+          borderRadius: 'var(--radius)',
+          border: '1px solid var(--border)',
+          backgroundColor: 'white',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+        }}>
+          <span style={{
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            color: 'var(--primary)'
+          }}>Scaled</span>
+          <span style={{
+            fontWeight: 500,
+            color: 'var(--foreground)'
+          }}>
             {imageMetadata.width * effectiveScale} ×{" "}
             {imageMetadata.height * effectiveScale}
           </span>
@@ -189,21 +278,54 @@ function SVGToolCore(props: { fileUploaderProps: FileUploaderResult }) {
       </div>
 
       {/* Scale Controls */}
-      <SVGScaleSelector
-        title="Scale Factor"
-        options={[1, 2, 4, 8, 16, 32, 64]}
-        selected={scale}
-        onChange={setScale}
-        customValue={customScale}
-        onCustomValueChange={setCustomScale}
-      />
+      <div style={{
+        width: '100%',
+        padding: '0.75rem',
+        borderRadius: 'var(--radius)',
+        border: '1px solid var(--border)',
+        backgroundColor: 'white',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+      }}>
+        <SVGScaleSelector
+          title="Scale Factor"
+          options={[1, 2, 4, 8, 16, 32, 64]}
+          selected={scale}
+          onChange={setScale}
+          customValue={customScale}
+          onCustomValueChange={setCustomScale}
+        />
+      </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
+      <div style={{
+        display: 'flex',
+        gap: '0.75rem'
+      }}>
         <button
           onClick={cancel}
-          className="rounded-lg bg-red-700 px-4 py-2 text-sm font-medium text-white/90 transition-colors hover:bg-red-800"
+          className="btn-danger"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.375rem'
+          }}
         >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            style={{
+              height: '0.75rem',
+              width: '0.75rem'
+            }}
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
           Cancel
         </button>
         <SaveAsPngButton
